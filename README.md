@@ -1,12 +1,17 @@
 About
 =======
-This repo contains three major projects, first, is KinEval. KinEval is a full stack mobile pick and place simulation for an arbitrary robot by incorporating 3D path planning (RRT-connect) from a start location to a goal location and open form inverse kinematics to navigate to an end effector position and orientation. The robot can also be controlled with user input. The implementation is for arbitrary robots such that the siumlation can be used with any robot in urdf format. Detailed instructions for use can be found in the KinEval Section.
+This repo contains three major projects, first, is KinEval. KinEval is a full stack mobile pick and place simulation for an arbitrary robot by incorporating 3D path planning (RRT-connect) from a start location to a goal location and open form inverse kinematics to navigate to an end effector position and orientation. Note that joint limits are enforced, but I have not added collision checks for self intersection for the inverse kinematics algorithm yet. The robot can also be controlled with user input. The implementation is for arbitrary robots such that the simulation can be used with any robot in urdf format. Additional instructions for use can be found in the KinEval Section. Check out the Fetch robot in action on youtube by clicking the thumbnails below.
+
+[![Check out the video on youtube by clicking the thumbnail](https://img.youtube.com/vi/cRjVSkJQsLU/0.jpg)](https://www.youtube.com/watch?v=cRjVSkJQsLU)
+
+[![Check out the video on youtube by clicking the thumbnail](https://img.youtube.com/vi/QItO5Bh42P4/0.jpg)](https://www.youtube.com/watch?v=QItO5Bh42P4)
 
 <!-- Here are some videos displaying the functionality using the Baxter Robot. -->
-
-Next, is a 2D path planning algorithm with the following algorithms implemented: depth-first, breadth-first, greedy-best-first,A-star, RRT, RRT-connect, and RRT-star for several maps. Additional details for testing use can be found in the 2D Path planner section. 
+Next, is a 2D path planning algorithm with the following algorithms implemented: depth-first, breadth-first, greedy-best-first,A-star, RRT, RRT-connect, and RRT-star for several maps. Additional details for testing use can be found in the 2D path planner section. Check out a video of the implementations on youtube by clicking the thumbnail below.
 
 <!-- Attach video here -->
+[![Check out the 2D path planning algorithms via youtube by clicking the thumbnail](https://img.youtube.com/vi/-De1XksBWwk/0.jpg)](https://www.youtube.com/watch?v=-De1XksBWwk)
+
 
 Lastly, is a 1-dof frictionless pendulum simulation. A servo can be used to apply a force to the pendulum and a PID motion control algorithm is used to move to a desired angle. 4 different methods of numerical integration were implemented to solve the equations of motion. A double pendulum simulation is also on the way.   
 

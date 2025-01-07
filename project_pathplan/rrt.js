@@ -23,7 +23,7 @@
 /||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\
 \/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/*/
 
-ballRadius = 0.5 // variable for radius of nodes to search for parent in 
+ballRadius = 0.75 // variable for radius of nodes to search for parent in 
 search_index = 0 
 
 function iterateRRT() {
