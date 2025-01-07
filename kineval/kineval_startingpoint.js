@@ -38,7 +38,7 @@ kineval.startingPlaceholderInit = function startingPlaceholderInit() {
 
     // assign relevant variables for the starting point animation
     var spacingLocal = 0.9;  // variables declared with "var" are local 
-    spacingGlobal = 0.9;  // variables declared with "var" are global
+    spacingGlobal = 0.9;  // variables declared without "var" are global
     waveAmplitude = 1.0;  // what does this do?
     waveFrequency = 0.31;  // could be interesting to modify this variable
     offsetVertical = 0.0;  // this could be useful later
@@ -371,56 +371,78 @@ kineval.startingPlaceholderUserInput = function startingPlaceholderUserInput() {
     if (keyboard.pressed("shift+x")) {
         textbar.innerHTML = "come on down";  // make the objects move down
     // STENCIL: update the vertical offset variable
+        offsetVertical -= 0.05
     }
     else if (keyboard.pressed("x")) {
         textbar.innerHTML = "moving on up";  // make the objects move up
     // STENCIL: update the vertical offset variable
+        offsetVertical += 0.05
     }
     else if (keyboard.pressed("shift+z")) {
         // increase the jittering of the objects
-        textbar.innerHTML = "its time for the percolator";  
+        textbar.innerHTML = "its time for the percolator"; 
     // STENCIL: update the radius of the jittering
+        jitterRadius += 0.01
     }
     else if (keyboard.pressed("z")) {
         // decrease the jittering of the objects
-        textbar.innerHTML = "relax your mind, let your conscience be free";  
+        //textbar.innerHTML = "relax your mind, let your conscience be free";  
     // STENCIL: update the radius of the jittering
+        jitterRadius -= 0.01  
+        if (jitterRadius <= 0){
+          jitterRadius = 0 
+        }      
     }
     else if (keyboard.pressed("shift+1")) { 
         // increase spacing along the x-axis between the objects
         textbar.innerHTML = "sail away"; 
     // STENCIL: update the global spacing variable
+        spacingGlobal += 0.05
     }
     else if (keyboard.pressed("1")) {
         // decrease spacing along the x-axis between the objects
         textbar.innerHTML = "come together"; 
     // STENCIL: update the global spacing variable
+        spacingGlobal -= 0.05
+        if(spacingGlobal <= 0){
+            spacingGlobal =0
+        }
+        waveFrequency = 0.31;  // could be interesting to modify this variable
     }
     else if (keyboard.pressed("shift+2")) { 
         // increase the amplitude of the animating sine wave
         textbar.innerHTML = "ain't no mountain high enough"; 
     // STENCIL: update the wave amplitude variable
+        waveAmplitude += 0.1
     }
     else if (keyboard.pressed("2")) {
         // decrease the amplitude of the animating sine wave
         textbar.innerHTML = "got 'til it's gone"; 
     // STENCIL: update the wave amplitude variable
+        waveAmplitude -= 0.1
     }
     else if (keyboard.pressed("shift+3")) { 
         // increase the frequency of the animating sine wave
         textbar.innerHTML = "good vibrations"; 
     // STENCIL: update the global spacing variable
+        waveFrequency += 0.01; 
     }
     else if (keyboard.pressed("3")) {
         // decrease the frequency of the animating sine wave
         textbar.innerHTML = "friends in low(er) places"; 
     // STENCIL: update the global spacing variable
+        waveFrequency -= 0.01; 
+
     }
     else {
         // STENCIL: say something more interesting in the textbar element
-        textbar.innerHTML = "Welcome to KinEval. I want to see some text. Can you place a message here?"; 
+        textbar.innerHTML = "Welcome to KinEval. Fuck around and find out";//"Welcome to KinEval. I want to see some text. Can you place a message here?"; 
     }
 }
+
+
+
+
 
 
 

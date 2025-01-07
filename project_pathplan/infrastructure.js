@@ -72,8 +72,14 @@ function initRRT(q) {
     tree.vertices[0].vertex = q;
     tree.vertices[0].edges = [];
 
+
     // maintain index of newest vertex added to tree
     tree.newest = 0;
+
+    //added this for rrt
+    tree.vertices[0].index = 0
+    tree.vertices[0].cost = 0
+
 
     return tree;
 }
@@ -88,6 +94,7 @@ function insertTreeVertex(tree,q) {
 
     // maintain index of newest vertex added to tree
     tree.newest = tree.vertices.length - 1;
+
 
     // draw location on canvas
     draw_2D_configuration(q, "visited");
@@ -191,7 +198,7 @@ function initSearch() {
 
     // specify start and goal configurations
     q_start_config = [0,0];
-    q_goal_config = [4,4];
+    q_goal_config = [4,4]; // [4,4]
     q_init = q_start_config;
     q_goal = q_goal_config;
 

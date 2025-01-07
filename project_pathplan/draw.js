@@ -35,6 +35,15 @@
 //////////////////////////////////////////////////
 /////     STUDENT HELPERS
 //////////////////////////////////////////////////
+function draw_cost(q, cost){
+    // draw location of 2D configuration on canvas
+    c = document.getElementById("myCanvas");
+    ctx = c.getContext("2d");
+    ctx.font = "8px serif";
+    ctx.fillStyle ="#DF2935";
+    ctx.fillText(cost,xformWorldViewX(q[0])-5, xformWorldViewY(q[1])+2.5);
+}
+
 
 function draw_2D_configuration(q, style) {
 
@@ -47,11 +56,47 @@ function draw_2D_configuration(q, style) {
         // for visited states, draw a larger square
         ctx.fillStyle = visited_state;
         size = 6;
-    } else if (style == "queued") {
+    } 
+    else if (style == "queued") {
         // for queued states, draw a smaller square
         ctx.fillStyle = queued_state;
         size = 3;
-    } else {
+    } 
+    /* Debugging with visual tests
+    else if(style == "q_rand"){ 
+        ctx.fillStyle ="#0088FF";
+        size = 8;
+    }
+    else if(style == "q_new"){ 
+        ctx.fillStyle ="#0088FF";
+        size = 6;
+    }
+    else if(style == "remove_q_new"){ 
+        ctx.fillStyle =visited_state;
+        size = 8;
+    }
+    else if(style == "q_min"){ 
+        ctx.fillStyle ="#DF2935";
+        size = 8;
+    }
+    else if(style == "remove"){ 
+        ctx.fillStyle ="#000000";
+        size = 8;
+    }
+    else if(style == "snake"){ 
+        ctx.fillStyle ="#000000";
+        size = 6;
+    }
+    else if(style =="cost"){
+        if(search_alg =="wavefront"||search_alg=="breadth-first"){
+            ctx.font = "10px serif";
+            ctx.fillStyle ="#DF2935";
+            let text = 55
+            ctx.fillText(text,xformWorldViewX(q[0])-5, xformWorldViewY(q[1])+2.5);
+          }
+    }
+    */
+    else {
         // otherwise draw tiny black squares
         ctx.fillStyle = "#000000";
     }
@@ -103,7 +148,7 @@ function drawHighlightedPathGraph(current_node) {
         ctx.fillRect(xformWorldViewX(q_path_ref.x) - 3,
                      xformWorldViewY(q_path_ref.y) - 3,
                      6, 6);
-
+        
         path_length += Math.sqrt(Math.pow(q_path_ref.x-q_path_ref.parent.x,2)+Math.pow(q_path_ref.y-q_path_ref.parent.y,2));
         q_path_ref = q_path_ref.parent;
     }
@@ -116,6 +161,42 @@ function draw_2D_edge_configurations(q1,q2) {
     c = document.getElementById("myCanvas");
     ctx = c.getContext("2d");
     ctx.strokeStyle = visited_state;
+    ctx.lineWidth=1; 
+    ctx.beginPath();
+    ctx.moveTo(xformWorldViewX(q1[0]),xformWorldViewY(q1[1]));
+    ctx.lineTo(xformWorldViewX(q2[0]),xformWorldViewY(q2[1]));
+    ctx.stroke();
+}
+
+
+function remove_2D_edge_configurations(q1,q2) {
+    // draw line between locations of two 2D configurations on canvas
+    c = document.getElementById("myCanvas");
+    ctx = c.getContext("2d");
+    ctx.strokeStyle = goal_fill;
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(xformWorldViewX(q1[0]),xformWorldViewY(q1[1]));
+    ctx.lineTo(xformWorldViewX(q2[0]),xformWorldViewY(q2[1]));
+    ctx.stroke();
+}
+
+function rewire_2D_edge_configurations(q1,q2) {
+    // draw line between locations of two 2D configurations on canvas
+    c = document.getElementById("myCanvas");
+    ctx = c.getContext("2d");
+    ctx.strokeStyle = path_start;
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(xformWorldViewX(q1[0]),xformWorldViewY(q1[1]));
+    ctx.lineTo(xformWorldViewX(q2[0]),xformWorldViewY(q2[1]));
+    ctx.stroke();
+}
+function collision_2D_edge_configurations(q1,q2) {
+    // draw line between locations of two 2D configurations on canvas
+    c = document.getElementById("myCanvas");
+    ctx = c.getContext("2d");
+    ctx.strokeStyle = collision;
     ctx.lineWidth=1;
     ctx.beginPath();
     ctx.moveTo(xformWorldViewX(q1[0]),xformWorldViewY(q1[1]));
@@ -189,9 +270,27 @@ function drawRobotWorld() {
     // draw start and goal configurations
     ctx.fillStyle = path_start;
     ctx.fillRect(xformWorldViewX(q_init[0])-5,xformWorldViewY(q_init[1])-5,10,10);
+    
+    /*
+    if(search_alg =="wavefront"||search_alg=="breadth-first"){
+        ctx.font = "10px serif";
+        ctx.fillStyle ="#DF2935";
+        let text = 55
+        ctx.fillText(text,xformWorldViewX(q_init[0])-5, xformWorldViewY(q_init[1])+2.5,10);
+    }
+    */
+
     ctx.fillStyle = goal_fill;
     ctx.fillRect(xformWorldViewX(q_goal[0])-5,xformWorldViewY(q_goal[1])-5,10,10);
+    /*
+    if(search_alg =="wavefront"||search_alg=="breadth-first"){
+        ctx.font = "10px serif";
+        ctx.fillStyle ="#DF2935";
+        let text = 2
+        ctx.fillText(text,xformWorldViewX(q_goal[0])-5, xformWorldViewY(q_goal[1])+2.5);
+    }
 
+*/
     // draw robot's world
     for (j=0;j<range.length;j++) {
         ctx.fillStyle = obstacle_fill;
@@ -212,6 +311,7 @@ function initColorScheme(scheme_name) {
         goal_fill = "#8FC93A";
         collision = "#DF2935";
         canvas_bg = "#FFFFFF";
+        snake = "#8FC93A";
     } else if (scheme_name == "blue") {
         obstacle_fill = "#8888FF";
         visited_state = "#8888AA";
@@ -270,6 +370,7 @@ function animate() {
             case "breadth-first":
             case "greedy-best-first":
             case "A-star":
+            case "wavefront":
                 search_result = iterateGraphSearch();
                 break;
             case "RRT":
@@ -284,6 +385,9 @@ function animate() {
                 break;
             case "RRT-star":
                 search_result = iterateRRTStar();
+                break;
+            case "snakeGame":
+                search_result = iterateGraphSearch();
                 break;
             default:
                 console.warn('search_canvas: search algorithm not found, using rrt as default');

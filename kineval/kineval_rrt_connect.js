@@ -94,7 +94,7 @@ kineval.planMotionRRTConnect = function motionPlanningRRTConnect() {
 
     // STENCIL: uncomment and complete initialization function
 kineval.robotRRTPlannerInit = function robot_rrt_planner_init() {
-
+    
     // form configuration from base location and joint angles
     q_start_config = [
         robot.origin.xyz[0],
@@ -104,6 +104,8 @@ kineval.robotRRTPlannerInit = function robot_rrt_planner_init() {
         robot.origin.rpy[1],
         robot.origin.rpy[2]
     ];
+    
+    //q_start_config = initialRandomConfig()
 
     q_names = {};  // store mapping between joint names and q DOFs
     q_index = [];  // store mapping between joint names and q DOFs
@@ -125,6 +127,15 @@ kineval.robotRRTPlannerInit = function robot_rrt_planner_init() {
 
     // make sure the rrt iterations are not running faster than animation update
     cur_time = Date.now();
+
+    //initializing the start and goal trees
+    T_a = tree_init(q_start_config)
+    T_a.name = "T_a"
+    T_b = tree_init(q_goal_config)
+    T_b.name = "T_b"
+    step_length = 0.2
+    search_index = 0 
+
 }
 
 
@@ -133,6 +144,7 @@ function robot_rrt_planner_iterate() {
 
     var i;
     rrt_alg = 1;  // 0: basic rrt (OPTIONAL), 1: rrt_connect (REQUIRED)
+
 
     if (rrt_iterate && (Date.now()-cur_time > 10)) {
         cur_time = Date.now();
@@ -150,8 +162,58 @@ function robot_rrt_planner_iterate() {
     //   tree_init - creates a tree of configurations
     //   tree_add_vertex - adds and displays new configuration vertex for a tree
     //   tree_add_edge - adds and displays new tree edge between configurations
-    }
 
+        let q_rand = randomConfig()
+    
+        // if it is not trapped, try connecting it to the other tree
+        if (extendRRT(T_a, q_rand)!="Trapped"){
+
+            // get new coordinate distance eps from nearest neighbor in direction of q_new
+            let q_new = T_a.vertices[T_a.newest].vertex
+
+
+            if(connectRRT(T_b, q_new) == "Reached"){
+
+                // goal is found 
+
+                // stop iterating the search
+                rrt_iterate = false
+
+                // get the path from T_a and T_b and connect them 
+                let path1 = dfsPath(T_a)
+                let path2 = dfsPath(T_b)
+                finalPath = combinePaths(path1,path2)
+                
+                // push the plan to global variable
+                for(i = 0; i < finalPath.vertices.length; i++){
+                    
+                    kineval.motion_plan.push(finalPath.vertices[i])
+                }
+        
+                // change the color of the cells in the path plan
+                highlightPath(finalPath)
+            
+                return "reached"
+
+            }
+
+            else{
+
+                return "extended"
+
+            }
+        }
+
+        else{
+
+            [T_a,T_b] = [T_b,T_a]  // swap when trapped
+
+            rrt_iter_count +=1 
+            return "extended"
+        }     
+        
+    }
+    
 }
 
 //////////////////////////////////////////////////
@@ -174,6 +236,7 @@ function tree_init(q) {
 
     // maintain index of newest vertex added to tree
     tree.newest = 0;
+    
 
     return tree;
 }
@@ -237,12 +300,250 @@ function tree_add_edge(tree,q1_idx,q2_idx) {
     //   find_path
     //   path_dfs
 
+   // get random point on map
+function randomConfig(){
+
+    let max_x = robot_boundary[1][0]
+    let min_x = robot_boundary[0][0]
+    let max_z = robot_boundary[1][2]
+    let min_z = robot_boundary[0][2]
+
+    let min_pitch = -Math.PI
+    let max_pitch = Math.PI
+    
+    let rand_x = (Math.random() * (max_x- min_x) + min_x)//.toFixed(3);
+    let rand_z= (Math.random() * (max_z- min_z) + min_z)//.toFixed(3);
+    let rand_pitch = (Math.random() * (max_pitch - min_pitch) + min_pitch)//.toFixed(3)
+    
+    let q_rand = [rand_x,0,rand_z,0,rand_pitch,0] //y is always zero
+
+    for (x in robot.joints) {
+     
+        rand_pitch = (Math.random() * (max_pitch - min_pitch) + min_pitch)
+        q_rand = q_rand.concat(rand_pitch);
+    }
+    
+    return q_rand
+
+    
+}
+
+function extendRRT(tree,q){
+    let q_nearest_info = nearestNeighbor(tree,q)
+    let q_nearest = q_nearest_info[0]
+    let q_nearest_index = q_nearest_info[1]
+
+    let q_new = findQNew(q_nearest,q)
+    
+    if(kineval.poseIsCollision(q_new) == false){
+        
+        // insert vertex
+        tree_add_vertex(tree, q_new)
+
+        //add parent index, and current index for debugging and tracing path 
+        tree.vertices[tree.newest].parent = q_nearest_index //using this to trace pathway back when complete
+        tree.vertices[tree.newest].index = tree.newest
+    
+        // insert edge
+        tree_add_edge(tree, q_nearest_index, tree.newest) 
+       
+        // check distance in XZ plane to the target q in XZ plane
+        let dist = distance([q_new[0],q_new[2]], [q[0],q[2]])
+                    
+        if (dist < step_length/2){ // if they are within the tolerance. within ball of epsilon such that no collision because within the same square 
+            //add the target q vertex to the tree
+            tree_add_vertex(tree, q)
+            tree_add_edge(tree, tree.newest-1, tree.newest) 
+            tree.vertices[tree.newest].parent = tree.newest-1 
+            tree.vertices[tree.newest].index = tree.newest
+            return "Reached"
+        }
+        else{
+            return "Advanced"
+        }
+
+    }
+    return "Trapped"
+   
+}
+
+function connectRRT(tree, q){
+    let S = "Advanced" // initialize  S as advanced 
+    
+    while (S == "Advanced"){
+        S = extendRRT(tree,q)           
+    }
+
+    return S
+
+}
+
+function nearestNeighbor(tree, q){
+    let nearest_neighbor
+    let nearest_neighbor_distance = 1000000000000000 // initializing to infinity
+    let nearest_neighbor_index = -1 //default
+
+    for (let i = 0; i < tree.vertices.length; i++){
+        // checking distance to each neighbor 
+        let neighbor_distance = distance([q[0],q[2]], [tree.vertices[i].vertex[0],tree.vertices[i].vertex[2]])
+
+        // reassigning values for nearest neighbor if a close neighbor is found
+        if (neighbor_distance < nearest_neighbor_distance){
+            nearest_neighbor = tree.vertices[i].vertex
+            nearest_neighbor_distance = neighbor_distance
+            nearest_neighbor_index = i
+        }
+    }  
+    return [nearest_neighbor,nearest_neighbor_index]
+    
+}
+
+function findQNew(q_near, q){
+
+    //map joints in q_names to indexs
+    let joint_name = [0,0,0,0,0,0]
+
+    for (x in robot.joints) {
+        //joint_index.push(q_names[x])
+        joint_name.push(robot.joints[x].name)
+    }
+    // get delta in x and z from nearest point to target point 
+    let delta_x = q[0] - q_near[0]
+    let delta_z = q[2] - q_near[2]
+
+    // get direction to step in
+    let theta = Math.atan2(delta_z, delta_x)
+    let step_length_rad = 0.5
+
+    // get new q
+    let q_new = [q_near[0] + (step_length * Math.cos(theta)), 0, q_near[2] + (step_length * Math.sin(theta))]
+    // getting vector from nearest config to target config
+    let q_joints = [0,0,0]
+    
+    for(let i = 3; i<q.length; i++){
+        
+        if (i == 3 || i == 5){ // just added this 
+            q_joints.push(0)
+        }
+        else{
+            q_joints.push(q[i] - q_near[i])
+        }
+    }
+
+    //normalizing the vector
+    let sum = 0
+
+    for(let i = 0; i<q_joints.length; i++){
+        sum = sum + (q_joints[i]*q_joints[i])
+    }
+
+    let magnitude = Math.sqrt(sum)
+
+    //adding the new joint states
+    for(let i = 3; i<q.length; i++){
+        if (i == 3 || i == 5){//just added this dont want to flip the robot around these axis
+            q_new.push(0)
+        }
+        else{
+            
+            let angle = step_length_rad*(q_near[i] + (q_joints[i]/magnitude))
+
+            // enforcing jpoint limits
+            if (i>5 && robot.links_geom_imported){
+
+                if(robot.joints[joint_name[i]].type == "revolute" || robot.joints[joint_name[i]].type == "prismatic"){
+                    if (angle > robot.joints[joint_name[i]].limit.upper){
+                        q_new.push(robot.joints[joint_name[i]].limit.upper)
+                    }
+                    else if (angle < robot.joints[joint_name[i]].limit.lower){
+                        q_new.push(robot.joints[joint_name[i]].limit.lower)
+                    } 
+                    else {
+                        q_new.push(angle)
+                    }
+                }
+                else {
+                    q_new.push(angle)
+                }
+                
+            }
+            else{
+                q_new.push(angle)
+            }
+        }
+    }
+
+    return q_new
+}
 
 
+function distance(q1,q2){ 
+    return Math.sqrt(((q1[0]-q2[0])**2) + ((q1[1] - q2[1])**2))
+}
+
+function dfsPath(tree){
+    let index = tree.newest
+    let path = tree_init(tree.vertices[index].vertex)
+    path.name = tree.name
+    
+    while(true){ 
+        let parent_index = tree.vertices[index].parent
+        path.vertices.push(tree.vertices[parent_index])
+        index = parent_index
+        if (parent_index == 0){
+            break
+        }
+
+    }
+    return path
+
+}
+
+// combines paths from T_a and T_b for display 
+function combinePaths(tree1,tree2){
+    
+    let index1 = tree1.vertices.length-1
+    let index2 = tree2.vertices.length-1
+
+    let path = tree_init(q_start_config)
+
+    if (tree1.name == "T_a"){
+        
+        for(i = index1-1; i >= 0; i--){
+            path.vertices.push(tree1.vertices[i])
+        }
+
+        for(i = 1; i <tree2.vertices.length; i++){
+            path.vertices.push(tree2.vertices[i])
+        }
+    }
+    else{
+            
+        for(i = index2-1; i >=0; i--){
+            path.vertices.push(tree2.vertices[i])
+        }
+
+        for(i = 1; i < tree1.vertices.length; i++){
+            path.vertices.push(tree1.vertices[i])
+        }
+        
+    }
+
+     
+    return path
+}
 
 
+function highlightPath(tree){
+    for (let i = 0; i<tree.vertices.length; i++){
+        tree.vertices[i].geom.material.color = {r:1,g:0,b:0};
+    }
+}
 
 
+function normalize_joint_state(q){
+    for(let i = 0; i<q; i++){
 
+    }
 
-
+}
