@@ -1,3 +1,14 @@
+About
+=======
+This repo contains three major projects, first, is KinEval. KinEval is a full stack mobile pick and place simulation for an arbitrary robot by incorporating 3D path planning (RRT-connect) from a start location to a goal location and open form inverse kinematics to navigate to an end effector position and orientation. The robot can also be controlled with user input. The implementation is for arbitrary robots such that the siumlation can be used with any robot in urdf format. Detailed instructions for use can be found in the KinEval Section.
+
+<!-- Here are some videos displaying the functionality using the Baxter Robot. -->
+
+Next, is a 2D path planning algorithm with the following algorithms implemented: depth-first, breadth-first, greedy-best-first,A-star, RRT, RRT-connect, and RRT-star for several maps. Additional details for testing use can be found in the 2D Path planner section. 
+
+<!-- Attach video here -->
+
+Lastly, is a 1-dof frictionless pendulum simulation. A servo can be used to apply a force to the pendulum and a PID motion control algorithm is used to move to a desired angle. 4 different methods of numerical integration were implemented to solve the equations of motion. A double pendulum simulation is also on the way.   
 
 KinEval
 =======
@@ -7,6 +18,10 @@ The Kinematic Evaluator (KinEval) is a package containing a collection of HTML5/
 To see kineval in action, open home.html in a web browser.  Firefox 29.0 through 41.0 works for sure.  Chrome and Opera will throw security errors when loading local files from JavaScript (which feels like forcing people into the cloud).  One method around this issue is to serve home.html from a web server.  If python is available on your system, this can be done by running python's SimpleHTTPServer: 
 
 python -m SimpleHTTPServer
+
+or 
+
+python  -m http.server
 
 and loading the file from the following URL:
 
