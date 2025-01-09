@@ -1,10 +1,43 @@
 About
 =======
-This repo contains three major projects, first, is KinEval. KinEval is a full stack mobile pick and place simulation for an arbitrary robot by incorporating 3D path planning (RRT-connect) from a start location to a goal location and open form inverse kinematics to navigate to an end effector position and orientation. Note that joint limits are enforced, but I have not added collision checks for self intersection for the inverse kinematics algorithm yet. The robot can also be controlled with user input. The implementation is for arbitrary robots such that the simulation can be used with any robot in urdf format. Additional instructions for use can be found in the KinEval Section. Check out the Fetch robot in action on youtube by clicking the thumbnails below.
+This repo contains three major projects, first, is KinEval. KinEval is a full stack mobile pick and place simulation for an arbitrary robot by incorporating 3D path planning (RRT-connect) from a start location to a goal location and open form inverse kinematics to navigate to an end effector position and orientation. Note that joint limits are enforced, but I have not added collision checks for self intersection for the inverse kinematics algorithm yet. The robot can also be controlled with user input. The implementation is for arbitrary robots such that the simulation can be used with any robot in urdf format. Additional instructions for use can be found in the KinEval Section. 
 
-[![Check out the video on youtube by clicking the thumbnail](https://img.youtube.com/vi/cRjVSkJQsLU/0.jpg)](https://www.youtube.com/watch?v=cRjVSkJQsLU)
+Check out the Fetch robot in action on youtube by clicking the thumbnails below.
+
+<a href="https://www.youtube.com/watch?v=cRjVSkJQsLU" target="_blank">
+  <img src="https://img.youtube.com/vi/cRjVSkJQsLU/0.jpg" alt="Check out the video on YouTube by clicking the thumbnail">
+</a>
+
+<a href="https://www.youtube.com/watch?v=QItO5Bh42P4" target="_blank">
+  <img src="https://img.youtube.com/vi/QItO5Bh42P4/0.jpg" alt="Check out the video on YouTube by clicking the thumbnail">
+</a>
+
+<!-- <a href="https://www.youtube.com/watch?v=cRjVSkJQsLU" target="_blank">
+  <img src="https://img.youtube.com/vi/cRjVSkJQsLU/0.jpg" alt="Check out the video on YouTube by clicking the thumbnail">
+</a> -->
+
+
+<!-- Arbitrary-Mobile-Robot-with-End-Effector-Simulation\Media\100in60Challenge_thumbnail.png -->
+
+[![Check out the video on youtube by clicking the thumbnail]()](https://www.youtube.com/watch?v=cRjVSkJQsLU)
+
+<!-- [![Check out the video on youtube by clicking the thumbnail](https://img.youtube.com/vi/cRjVSkJQsLU/0.jpg)](https://www.youtube.com/watch?v=cRjVSkJQsLU)
 
 [![Check out the video on youtube by clicking the thumbnail](https://img.youtube.com/vi/QItO5Bh42P4/0.jpg)](https://www.youtube.com/watch?v=QItO5Bh42P4)
+
+Check out this video demonstration:
+
+- [Watch the video](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+- <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">Watch the video (opens in a new tab)</a>
+
+<a href="https://www.youtube.com/watch?v=cRjVSkJQsLU" target="_blank">
+  <img src="https://img.youtube.com/vi/cRjVSkJQsLU/0.jpg" alt="Check out the video on YouTube by clicking the thumbnail">
+</a>
+
+<a href="https://www.youtube.com/watch?v=cRjVSkJQsLU" target="_blank" style="position: relative; display: inline-block;">
+  <img src="https://img.youtube.com/vi/cRjVSkJQsLU/0.jpg" alt="Check out the video on YouTube by clicking the thumbnail" style="display: block;">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/YouTube_play_button_icon_%282013-2017%29.svg" alt="Play Button" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 20%; height: 20%;">
+</a> -->
 
 <!-- Here are some videos displaying the functionality using the Baxter Robot. -->
 Next, is a 2D path planning algorithm with the following algorithms implemented: depth-first, breadth-first, greedy-best-first,A-star, RRT, RRT-connect, and RRT-star for several maps. Additional details for testing use can be found in the 2D path planner section. Check out a video of the implementations on youtube by clicking the thumbnail below.
